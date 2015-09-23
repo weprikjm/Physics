@@ -34,13 +34,14 @@ bool ModulePhysics::Start()
 	// - Remember to destroy the world after using it
 
 	b2BodyDef circle_def;
-	circle_def.type = b2_dynamicBody;
+	circle_def.type = b2_staticBody;
 	circle_def.position.Set(pixelsToMeters(SCREEN_WIDTH / 2), pixelsToMeters(SCREEN_HEIGHT / 2));
 
 	groundCircle = world->CreateBody(&circle_def);
+
 	b2CircleShape dynamicCircle;
 		
-	int radius = 200;
+	int radius = 300;
 
 	dynamicCircle.m_radius = pixelsToMeters(radius);
 
@@ -48,8 +49,6 @@ bool ModulePhysics::Start()
 
 	fixtureDef.shape = &dynamicCircle;
 
-	fixtureDef.density = 1.0f;
-	fixtureDef.friction = 0.3f;
 
 	groundCircle->CreateFixture(&fixtureDef);
 	// TODO 4: Create a a big static circle as "ground"
@@ -60,7 +59,7 @@ bool ModulePhysics::Start()
 update_status ModulePhysics::PreUpdate()
 {
 	// TODO 3: Update the simulation ("step" the world)
-	world->Step((float32)TIMESTEP, (int32)VELOCITY_ITERATIONS, (int32)POSITION_ITERATIONS);
+	world->Step(1.0f / 60.0f, 8, 3);
 	world->ClearForces();
 	
 	return UPDATE_CONTINUE;
@@ -80,7 +79,7 @@ update_status ModulePhysics::PostUpdate()
 
 	// Bonus code: this will iterate all objects in the world and draw the circles
 	// You need to provide your own macro to translate meters to pixels
-	/*
+	
 	for(b2Body* b = world->GetBodyList(); b; b = b->GetNext())
 	{
 		for(b2Fixture* f = b->GetFixtureList(); f; f = f->GetNext())
@@ -91,14 +90,14 @@ update_status ModulePhysics::PostUpdate()
 				{
 					b2CircleShape* shape = (b2CircleShape*)f->GetShape();
 					b2Vec2 pos = f->GetBody()->GetPosition();
-					App->renderer->DrawCircle(METERS_TO_PIXELS(pos.x), METERS_TO_PIXELS(pos.y), METERS_TO_PIXELS(shape->m_radius), 255, 255, 255);
+					App->renderer->DrawCircle(metersToPixels(pos.x), metersToPixels(pos.y), metersToPixels(shape->m_radius), 255, 255, 255);
 				}
 				break;
 
 				// You will have to add more cases to draw boxes, edges, and polygons ...
 			}
 		}
-	}*/
+	}
 
 	return UPDATE_CONTINUE;
 }
