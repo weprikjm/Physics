@@ -6,8 +6,7 @@
 #include "Box2D/Box2d/Box2D.h"
 #pragma comment (lib, "Box2D/libx86/Debug/Box2D.lib")
 
-#define GRAVITY_X 0.0f
-#define GRAVITY_Y -10.0f
+
 
 // TODO 1: Include Box 2 header and library
 
@@ -33,17 +32,22 @@ bool ModulePhysics::Start()
 	// - You need to send it a default gravity
 	// - You need init the world in the constructor
 	// - Remember to destroy the world after using it
+
 	b2BodyDef circle_def;
 	circle_def.type = b2_dynamicBody;
-	circle_def.position.Set(0.0f, 2.0f);
+	circle_def.position.Set(pixelsToMeters(SCREEN_WIDTH / 2), pixelsToMeters(SCREEN_HEIGHT / 2));
 
 	groundCircle = world->CreateBody(&circle_def);
+	b2CircleShape dynamicCircle;
+		
+	int radius = 200;
 
-	b2PolygonShape dynamicCircle;
-	dynamicCircle.SetAsBox(1.0f, 1.0f);
+	dynamicCircle.m_radius = pixelsToMeters(radius);
 
 	b2FixtureDef fixtureDef;
+
 	fixtureDef.shape = &dynamicCircle;
+
 	fixtureDef.density = 1.0f;
 	fixtureDef.friction = 0.3f;
 
@@ -56,8 +60,6 @@ bool ModulePhysics::Start()
 update_status ModulePhysics::PreUpdate()
 {
 	// TODO 3: Update the simulation ("step" the world)
-
-	
 	world->Step((float32)TIMESTEP, (int32)VELOCITY_ITERATIONS, (int32)POSITION_ITERATIONS);
 	world->ClearForces();
 	
@@ -111,4 +113,14 @@ bool ModulePhysics::CleanUp()
 	delete(world);
 	
 	return true;
+}
+
+float ModulePhysics::pixelsToMeters(unsigned int num_pixels)
+{
+	return 0.02f * num_pixels;
+}
+
+int ModulePhysics::metersToPixels(float num_meters)
+{
+	return (int)50.0f * num_meters;
 }
