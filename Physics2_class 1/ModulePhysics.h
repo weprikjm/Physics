@@ -2,6 +2,10 @@
 #include "Module.h"
 #include "Globals.h"
 
+#define	TIMESTEP (float32) 1.0f / 60.f
+#define VELOCITY_ITERATIONS (int32) 10
+#define POSITION_ITERATIONS (int32) 8
+
 class b2World;
 class b2Body;
 class ModulePhysics : public Module

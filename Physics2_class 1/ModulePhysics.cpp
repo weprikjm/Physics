@@ -9,9 +9,6 @@
 #define GRAVITY_X 0.0f
 #define GRAVITY_Y -10.0f
 
-#define timeStep (float32) 1.0f / 60.f
-#define velocityIterations (int32) 10
-#define positionIterations (int32) 8
 // TODO 1: Include Box 2 header and library
 
 ModulePhysics::ModulePhysics(Application* app, bool start_enabled) : Module(app, start_enabled), world(NULL), groundCircle(NULL)
@@ -59,8 +56,11 @@ bool ModulePhysics::Start()
 update_status ModulePhysics::PreUpdate()
 {
 	// TODO 3: Update the simulation ("step" the world)
-	world->Step(timeStep, velocityIterations, positionIterations);
+
+	
+	world->Step((float32)TIMESTEP, (int32)VELOCITY_ITERATIONS, (int32)POSITION_ITERATIONS);
 	world->ClearForces();
+	
 	return UPDATE_CONTINUE;
 }
 

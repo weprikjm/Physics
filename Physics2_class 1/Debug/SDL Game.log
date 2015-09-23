@@ -1,4 +1,4 @@
-﻿Compilación iniciada a las 23/09/2015 12:01:36.
+﻿Compilación iniciada a las 23/09/2015 12:11:41.
      1>Proyecto "D:\Users\davidrc17\Documents\GitHub\Physics\Physics2_class 1\SDL Game.vcxproj" en el nodo 2 (Build destinos).
      1>ClCompile:
          C:\soft\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /sdl /Od /Oy- /D _MBCS /Gm /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt ModulePhysics.cpp
@@ -21,4 +21,4 @@
 
 Compilación correcta.
 
-Tiempo transcurrido 00:00:01.26
+Tiempo transcurrido 00:00:01.61
