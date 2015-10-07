@@ -259,15 +259,30 @@ bool PhysBody::Contains(int x, int y) const
 {
 	// TODO 1: Write the code to return true in case the point
 	// is inside ANY of the shapes contained by this body
-
-	return false;
+	bool hit = false;
+	b2Vec2 point(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
+	for (b2Fixture* f = body->GetFixtureList(); f && hit == false; f = f->GetNext())
+	{
+		hit = f->GetShape()->TestPoint(body->GetTransform(),point);
+	}
+	return hit;
 }
 
 int PhysBody::RayCast(int x1, int y1, int x2, int y2, float& normal_x, float& normal_y) const
 {
 	// TODO 2: Write code to test a ray cast between both points provided. If not hit return -1
 	// if hit, fill normal_x and normal_y and return the distance between x1,y1 and it's colliding point
+
+	//b2Shape
 	int ret = -1;
+	b2RayCastInput input;
+	b2RayCastOutput output;
+	b2Transform transform = body->GetTransform();
+	int32 childIndex = 0;
+	input.p1.Set(PIXEL_TO_METERS(x1), PIXEL_TO_METERS(y1));
+	input.p2.Set(PIXEL_TO_METERS(x2), PIXEL_TO_METERS(y2));
+	bool hit = body->GetFixtureList()->GetShape()->RayCast(&output, input, transform, childIndex);
+
 
 	return ret;
 }
