@@ -23,7 +23,7 @@ public:
 	float GetRotation() const;
 	bool Contains(int x, int y) const;
 	int RayCast(int x1, int y1, int x2, int y2, float& normal_x, float& normal_y) const;
-
+	
 public:
 	int width, height;
 	b2Body* body;
@@ -48,9 +48,8 @@ public:
 	PhysBody* CreateRectangle(int x, int y, int width, int height);
 	PhysBody* CreateRectangleSensor(int x, int y, int width, int height);
 	PhysBody* CreateChain(int x, int y, int* points, int size);
-
+	bool debugGuarro = false;
 private:
-
 	bool debug;
 	b2World* world;
 };

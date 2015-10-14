@@ -6,6 +6,7 @@
 #include "p2Point.h"
 #include "math.h"
 
+
 #ifdef _DEBUG
 #pragma comment( lib, "Box2D/libx86/Debug/Box2D.lib" )
 #else
@@ -26,7 +27,7 @@ ModulePhysics::~ModulePhysics()
 bool ModulePhysics::Start()
 {
 	LOG("Creating Physics 2D environment");
-
+	debugGuarro = false;
 	world = new b2World(b2Vec2(GRAVITY_X, -GRAVITY_Y));
 	// TODO 3: You need to make ModulePhysics class a contact listener
 
@@ -279,28 +280,23 @@ int PhysBody::RayCast(int x1, int y1, int x2, int y2, float& normal_x, float& no
 	b2RayCastOutput output;
 	b2Transform transform = body->GetTransform();
 	int32 childIndex = 0;
-	b2Vec2 normalVec;
+	b2Vec2 normalVec{ normal_x, normal_y };
+	
+	float maxFraction = 1.0f;
 	input.p1.Set(PIXEL_TO_METERS(x1), PIXEL_TO_METERS(y1));
 	input.p2.Set(PIXEL_TO_METERS(x2), PIXEL_TO_METERS(y2));
+	input.maxFraction =  maxFraction;
 
-for (b2Fixture* f = body->GetFixtureList(); f; f = f->GetNext())
-	{
-		hit = f->GetShape()->RayCast(&output, input, transform, childIndex);
-		if (hit == true)
+	for (b2Fixture* f = body->GetFixtureList(); f; f = f->GetNext())
 		{
-			normalVec.x = x2 - x1;
-			normalVec.y = y2 - y1;
-			normalVec.Normalize();
-
-			normal_x = normalVec.x;
-			normal_y = normalVec.y;
-
-			int dX = sqrt(pow(x1, 2) + pow(x2, 2));
-			int dY = sqrt(pow(y1, 2) + pow(y2, 2));
-			ret = (dX + dY) * output.fraction;
+			transform = body->GetTransform();
+			hit = f->GetShape()->RayCast(&output, input, transform, childIndex);
+			if (hit == true)
+			{
+				b2Vec2 dis = input.p1 + output.fraction*(input.p2 - input.p1);
+				ret = METERS_TO_PIXELS(dis.LengthSquared());
+			}
 		}
-}
-	
 	return ret;
 }
 
