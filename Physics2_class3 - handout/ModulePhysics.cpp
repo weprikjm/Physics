@@ -6,7 +6,6 @@
 #include "p2Point.h"
 #include "math.h"
 
-
 #ifdef _DEBUG
 #pragma comment( lib, "Box2D/libx86/Debug/Box2D.lib" )
 #else
@@ -27,10 +26,10 @@ ModulePhysics::~ModulePhysics()
 bool ModulePhysics::Start()
 {
 	LOG("Creating Physics 2D environment");
-	debugGuarro = false;
+
 	world = new b2World(b2Vec2(GRAVITY_X, -GRAVITY_Y));
 	// TODO 3: You need to make ModulePhysics class a contact listener
-
+	world->SetContactListener(this);
 	// big static circle as "ground" in the middle of the screen
 	int x = SCREEN_WIDTH / 2;
 	int y = SCREEN_HEIGHT / 1.5f;
@@ -48,6 +47,8 @@ bool ModulePhysics::Start()
 	b2FixtureDef fixture;
 	fixture.shape = &shape;
 	b->CreateFixture(&fixture);
+
+
 
 	return true;
 }
@@ -82,12 +83,13 @@ PhysBody* ModulePhysics::CreateCircle(int x, int y, int radius)
 	fixture.density = 1.0f;
 
 	b->CreateFixture(&fixture);
-
+	
 	// TODO 4: add a pointer to PhysBody as UserData to the body
 	PhysBody* pbody = new PhysBody();
 	pbody->body = b;
 	pbody->width = pbody->height = radius;
 
+	b->SetUserData(pbody);
 	return pbody;
 }
 
@@ -111,7 +113,7 @@ PhysBody* ModulePhysics::CreateRectangle(int x, int y, int width, int height)
 	pbody->body = b;
 	pbody->width = width * 0.5f;
 	pbody->height = height * 0.5f;
-
+	b->SetUserData(pbody);
 	return pbody;
 }
 
@@ -126,7 +128,7 @@ PhysBody* ModulePhysics::CreateChain(int x, int y, int* points, int size)
 	b2ChainShape shape;
 	b2Vec2* p = new b2Vec2[size / 2];
 
-	for(uint i = 0; i < size / 2; ++i)
+	for(int i = 0; i < size / 2; ++i)
 	{
 		p[i].x = PIXEL_TO_METERS(points[i * 2 + 0]);
 		p[i].y = PIXEL_TO_METERS(points[i * 2 + 1]);
@@ -144,7 +146,7 @@ PhysBody* ModulePhysics::CreateChain(int x, int y, int* points, int size)
 	PhysBody* pbody = new PhysBody();
 	pbody->body = b;
 	pbody->width = pbody->height = 0;
-
+	b->SetUserData(pbody);
 	return pbody;
 }
 
@@ -258,48 +260,76 @@ float PhysBody::GetRotation() const
 
 bool PhysBody::Contains(int x, int y) const
 {
-	// TODO 1: Write the code to return true in case the point
-	// is inside ANY of the shapes contained by this body
 	bool hit = false;
 	b2Vec2 point(PIXEL_TO_METERS(x), PIXEL_TO_METERS(y));
 	for (b2Fixture* f = body->GetFixtureList(); f && hit == false; f = f->GetNext())
 	{
-		hit = f->GetShape()->TestPoint(body->GetTransform(),point);
+		hit = f->GetShape()->TestPoint(body->GetTransform(), point);
 	}
 	return hit;
+	/*TODO 1 “Write the code to return true in case the point is inside ANY of the shapes
+	contained by this body”*/
+
 }
 
 int PhysBody::RayCast(int x1, int y1, int x2, int y2, float& normal_x, float& normal_y) const
 {
-	// TODO 2: Write code to test a ray cast between both points provided. If not hit return -1
-	// if hit, fill normal_x and normal_y and return the distance between x1,y1 and it's colliding point
-
 	int ret = -1;
 	bool hit = true;
 	b2RayCastInput input;
 	b2RayCastOutput output;
 	b2Transform transform = body->GetTransform();
 	int32 childIndex = 0;
-	b2Vec2 normalVec{ normal_x, normal_y };
-	
+	b2Vec2 normalVec;
+
 	float maxFraction = 1.0f;
 	input.p1.Set(PIXEL_TO_METERS(x1), PIXEL_TO_METERS(y1));
 	input.p2.Set(PIXEL_TO_METERS(x2), PIXEL_TO_METERS(y2));
-	input.maxFraction =  maxFraction;
+	input.maxFraction = maxFraction;
 
+	
 	for (b2Fixture* f = body->GetFixtureList(); f; f = f->GetNext())
+	{
+		transform = body->GetTransform();
+		hit = f->GetShape()->RayCast(&output, input, transform, childIndex);
+		if (hit == true)
 		{
-			transform = body->GetTransform();
-			hit = f->GetShape()->RayCast(&output, input, transform, childIndex);
-			if (hit == true)
-			{
-				b2Vec2 dis = input.p1 + output.fraction*(input.p2 - input.p1);
-				ret = METERS_TO_PIXELS(dis.LengthSquared());
-			}
+			b2Vec2 dis = output.fraction * (input.p2 - input.p1);
+			ret = METERS_TO_PIXELS(dis.Length());
+			normal_x = output.normal.x;
+			normal_y = output.normal.y;
 		}
+	}
 	return ret;
+
+/*TODO 2 “Write code to test a ray cast between both points provided.
+If not hit return -1. If 	hit, fill normal_x and normal_y and return the 
+distance between x1, y1 and it's	colliding point”*/
 }
 
+void ModulePhysics::OnCollision(PhysBody* pb1, PhysBody*pb2)
+{
+	return;
+}
+
+void ModulePhysics::BeginContact(b2Contact* contact)
+{
+	LOG("Collision");
+
+	PhysBody* pb1 = (PhysBody*)contact->GetFixtureA()->GetBody()->GetUserData();
+	PhysBody* pb2 = (PhysBody*)contact->GetFixtureB()->GetBody()->GetUserData();
+
+
+	LOG("PB1: %s", pb1/*->GetPosition()*/);
+	LOG("PB2: %s", pb2);
+	
+//	if (pb1 != NULL && pb2 != NULL)
+	{
+		
+		OnCollision(pb1, pb2);
+	}
+
+}
 // TODO 3
 
 // TODO 7: Call the listeners that are not NULL
