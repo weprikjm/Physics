@@ -51,7 +51,7 @@ public:
 	void BeginContact(b2Contact* contact);
 
 private:
-
+	b2Body* body_clicked;
 	bool debug;
 	b2World* world;
 	b2MouseJoint* mouse_joint;
